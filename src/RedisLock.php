@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Pizsd\HyperfRedisLock;
 
 use Hyperf\Redis\Redis;
+use Hyperf\Di\Annotation\Inject;
 
 class RedisLock extends Lock
 {
