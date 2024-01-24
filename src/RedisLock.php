@@ -1,65 +1,65 @@
 <?php
 
-namespace Lysice\HyperfRedisLock;
+declare (strict_types=1);
 
-use Hyperf\Redis\RedisProxy;
+namespace Pizsd\HyperfRedisLock;
 
-/**
- * Class RedisLock
- * @package App\Utils\RedisLock
- */
-class RedisLock extends Lock {
-    /**
-     * @var RedisProxy
-     */
-    protected $redis;
+use Hyperf\Redis\Redis;
 
-    public function __construct($redis, $name, $seconds, $owner = null)
+class RedisLock extends Lock
+{
+
+    #[Inject]
+    protected Redis $redis;
+
+    public function __construct($owner = null)
     {
-        parent::__construct($name, $seconds, $owner);
-        $this->redis = $redis;
+        parent::__construct($owner);
     }
 
     /**
-     * @inheritDoc
+     * @param string $key
+     * @param int $ttl millisecond
+     * @return bool
+     * @throws \RedisException
      */
-    public function acquire()
+    public function acquire(string $key, int $ttl): bool
     {
-        $result = $this->redis->setnx($this->name, $this->owner);
-
-        if(intval($result) === 1 && $this->seconds > 0) {
-            $this->redis->expire($this->name, $this->seconds);
-        }
-
-        return intval($result) === 1;
+        return $this->redis->set($key, $this->owner, ['NX', 'PX' => $ttl]);
     }
 
     /**
-     * @inheritDoc
+     * @param string $key
+     * @return bool
+     * @throws \RedisException
      */
-    public function release()
+    public function release(string $key): bool
     {
-        if ($this->isOwnedByCurrentProcess()) {
-            $res = $this->redis->eval(LockScripts::releaseLock(), ['name' => $this->name, 'owner' => $this->owner],1);
+        if ($this->isOwnedByCurrentProcess($key)) {
+            $res = $this->redis->eval(LockScripts::releaseLock(), ['name' => $key, 'owner' => $this->owner], 1);
             return $res == 1;
         }
         return false;
     }
 
     /**
-     * @inheritDoc
+     * @param string $key
+     * @return string
+     * @throws \RedisException
      */
-    protected function getCurrentOwner()
+    protected function getCurrentOwner(string $key): string
     {
-        return $this->redis->get($this->name);
+        return $this->redis->get($key);
     }
 
     /**
-     * @inheritDoc
+     * @param string $key
+     * @return bool
+     * @throws \RedisException
      */
-    public function forceRelease()
+    public function forceRelease(string $key): bool
     {
-        $r = $this->redis->del($this->name);
+        $r = $this->redis->del($key);
         return $r == 1;
     }
 }

@@ -1,13 +1,15 @@
 <?php
 
-namespace Lysice\HyperfRedisLock;
+declare (strict_types = 1);
 
-class LockScripts {
+namespace Pizsd\HyperfRedisLock;
+
+class LockScripts
+{
     /**
-     * release lock
      * @return string
      */
-    public static function releaseLock()
+    public static function releaseLock(): string
     {
         return <<<'LUA'
 if redis.call("get",KEYS[1]) == ARGV[1] then

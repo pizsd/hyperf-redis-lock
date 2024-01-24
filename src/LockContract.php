@@ -1,14 +1,17 @@
 <?php
 
+declare (strict_types = 1);
+
 namespace Lysice\HyperfRedisLock;
 
-interface LockContract {
+interface LockContract
+{
     /**
      * Attempt to acquire the lock
      * @param callable|null $callback
      * @return mixed
      */
-    public function get($callback = null);
+    public function get(?\Closure $callback = null);
 
     /**
      * Attempt to acquire the lock for the given number of seconds
@@ -16,7 +19,7 @@ interface LockContract {
      * @param callable | null $callback
      * @return mixed
      */
-    public function block($seconds, $callback = null);
+    public function block(int $seconds, ?\Closure $callback = null);
 
     /**
      * Release the lock

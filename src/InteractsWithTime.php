@@ -1,6 +1,8 @@
 <?php
 
-namespace Lysice\HyperfRedisLock;
+declare (strict_types = 1);
+
+namespace Pizsd\HyperfRedisLock;
 
 use Carbon\Carbon;
 use DateTimeInterface;
@@ -12,19 +14,19 @@ trait InteractsWithTime
      * @param $delay
      * @return int|mixed
      */
-    protected function secondsUtil($delay)
+    protected function secondsUtil($delay): mixed
     {
         $delay = $this->getDateTimeAfterInterval($delay);
         return $delay instanceof \DateTimeInterface
             ? max(0, $delay->getTimestamp() - $this->currentTime())
-            : intval($delay);
+            : (int)($delay);
     }
 
     /**
      * @param DateTimeInterface | int| \DateInterval $delay
      * @return int
      */
-    protected function availableAt($delay = 0)
+    protected function availableAt($delay = 0): int
     {
         $delay = $this->getDateTimeAfterInterval($delay);
         return $delay instanceof DateTimeInterface
@@ -37,7 +39,7 @@ trait InteractsWithTime
      * @param $delay
      * @return Carbon
      */
-    protected function getDateTimeAfterInterval($delay)
+    protected function getDateTimeAfterInterval($delay): Carbon
     {
         if ($delay instanceof \DateInterval) {
             $delay = Carbon::now()->add($delay);
@@ -50,7 +52,7 @@ trait InteractsWithTime
      * Get current Time
      * @return int
      */
-    protected function currentTime()
+    protected function currentTime(): int
     {
         return Carbon::now()->getTimestamp();
     }
