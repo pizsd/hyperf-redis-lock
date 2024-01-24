@@ -1,41 +1,36 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
-namespace Lysice\HyperfRedisLock;
+namespace Pizsd\HyperfRedisLock;
 
 interface LockContract
 {
     /**
-     * Attempt to acquire the lock
-     * @param callable|null $callback
+     * Attempt to acquire the lock.
+     *
      * @return mixed
      */
-    public function get(?\Closure $callback = null);
+    public function get(string $key, int $ttl, ?\Closure $callback = null);
 
     /**
-     * Attempt to acquire the lock for the given number of seconds
-     * @param $seconds
-     * @param callable | null $callback
+     * Attempt to acquire the lock for the given number of seconds.
+     * @param $ttl millisecond
      * @return mixed
      */
-    public function block(int $seconds, ?\Closure $callback = null);
+    public function block(string $key, int $ttl, ?\Closure $callback = null);
 
     /**
-     * Release the lock
+     * Release the lock.
+     *
      * @return mixed
      */
-    public function release();
-
-    /**
-     * Returns the current owner of the lock
-     * @return mixed
-     */
-    public function owner();
+    public function release(string $key, string $owner);
 
     /**
      * Releases this lock in disregard of ownership.
+     *
      * @return mixed
      */
-    public function forceRelease();
+    public function forceRelease(string $key);
 }

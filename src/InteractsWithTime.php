@@ -1,43 +1,41 @@
 <?php
 
-declare (strict_types = 1);
+declare(strict_types=1);
 
 namespace Pizsd\HyperfRedisLock;
 
 use Carbon\Carbon;
-use DateTimeInterface;
 
 trait InteractsWithTime
 {
     /**
-     * Get the number of seconds Until the given Datetime
-     * @param $delay
+     * Get the number of seconds Until the given Datetime.
+     *
      * @return int|mixed
      */
     protected function secondsUtil($delay): mixed
     {
         $delay = $this->getDateTimeAfterInterval($delay);
+
         return $delay instanceof \DateTimeInterface
             ? max(0, $delay->getTimestamp() - $this->currentTime())
-            : (int)($delay);
+            : (int) ($delay);
     }
 
     /**
-     * @param DateTimeInterface | int| \DateInterval $delay
-     * @return int
+     * @param \DateInterval|\DateTimeInterface|int $delay
      */
     protected function availableAt($delay = 0): int
     {
         $delay = $this->getDateTimeAfterInterval($delay);
-        return $delay instanceof DateTimeInterface
+
+        return $delay instanceof \DateTimeInterface
             ? $delay->getTimestamp()
             : Carbon::now()->addRealSeconds($delay)->getTimestamp();
     }
 
     /**
-     * Get DateTime Instance from an interval
-     * @param $delay
-     * @return Carbon
+     * Get DateTime Instance from an interval.
      */
     protected function getDateTimeAfterInterval($delay): Carbon
     {
@@ -49,8 +47,7 @@ trait InteractsWithTime
     }
 
     /**
-     * Get current Time
-     * @return int
+     * Get current Time.
      */
     protected function currentTime(): int
     {
