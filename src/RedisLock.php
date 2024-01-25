@@ -32,16 +32,13 @@ class RedisLock extends Lock
      */
     public function release(string $key, string $owner): bool
     {
-        // The lock has expired when it is released.
-        if (!$owner) {
-            return true;
-        }
-        if ($this->getCurrentOwner($key) === $owner) {
+        if ($value === $owner) {
             $res = $this->redis->eval(LockScripts::releaseLock(), ['name' => $key, 'owner' => $owner], 1);
 
             return 1 == $res;
         }
 
+        // The lock expires or is not the lock holder
         return false;
     }
 
