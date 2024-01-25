@@ -15,21 +15,21 @@ abstract class Lock implements LockContract
      *
      * @param int $ttl millisecond
      */
-    abstract public function acquire(string $key, int $ttl): string;
+    abstract public function acquire(string $key, int $ttl): string|false;
 
     /**
      * Release the lock.
      *
      * @return mixed
      */
-    abstract public function release(string $key, string $owner);
+    abstract public function release(string $key, string $owner): bool;
 
     /**
      * Attempt to acquire the lock.
      *
      * @return bool
      */
-    public function get(string $key, int $ttl, $callback = null, $finally = null)
+    public function get(string $key, int $ttl, $callback = null, $finally = null): bool
     {
         $owner = $this->acquire($key, $ttl);
         if ($owner && is_callable($callback)) {
@@ -43,7 +43,7 @@ abstract class Lock implements LockContract
             return $finally();
         }
 
-        return (bool) $owner;
+        return (bool)$owner;
     }
 
     /**
@@ -78,5 +78,5 @@ abstract class Lock implements LockContract
     /**
      * Returns the owner value written into the driver for this lock.
      */
-    abstract protected function getCurrentOwner(string $key): string;
+    abstract protected function getCurrentOwner(string $key): string|false;
 }

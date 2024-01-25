@@ -17,14 +17,14 @@ class RedisLock extends Lock
      *
      * @throws \RedisException
      */
-    public function acquire(string $key, int $ttl): string
+    public function acquire(string $key, int $ttl): string|false
     {
         $owner = uniqid(gethostname(), true);
         if ($this->redis->set($key, $owner, ['NX', 'PX' => $ttl])) {
             return $owner;
         }
 
-        return '';
+        return false;
     }
 
     /**
@@ -32,6 +32,10 @@ class RedisLock extends Lock
      */
     public function release(string $key, string $owner): bool
     {
+        // The lock has expired when it is released.
+        if (!$owner) {
+            return true;
+        }
         if ($this->getCurrentOwner($key) === $owner) {
             $res = $this->redis->eval(LockScripts::releaseLock(), ['name' => $key, 'owner' => $owner], 1);
 
@@ -54,7 +58,7 @@ class RedisLock extends Lock
     /**
      * @throws \RedisException
      */
-    protected function getCurrentOwner(string $key): string
+    protected function getCurrentOwner(string $key): string|false
     {
         return $this->redis->get($key);
     }
